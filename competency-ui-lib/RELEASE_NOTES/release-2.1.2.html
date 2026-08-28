@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Release 2.1.2 — @aastrika_npmjs/comptency</title>
+  <style>
+    body {
+      font-family: 'Open Sans', Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      color: #0D1218;
+      margin: 72pt 72pt 72pt 72pt;
+      line-height: 1.5;
+    }
+    h1 { font-size: 18pt; font-weight: 700; color: #17283C; border-bottom: 2pt solid #17283C; padding-bottom: 4pt; margin-top: 24pt; }
+    h2 { font-size: 14pt; font-weight: 600; color: #17283C; margin-top: 20pt; margin-bottom: 6pt; }
+    h3 { font-size: 12pt; font-weight: 600; color: #18293D; margin-top: 14pt; margin-bottom: 4pt; }
+    p  { margin: 6pt 0; }
+    a  { color: #186E6E; text-decoration: underline; }
+    code {
+      font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+      font-size: 9pt;
+      background-color: #F6F7F9;
+      padding: 1pt 3pt;
+      border-radius: 2pt;
+    }
+    pre {
+      font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+      font-size: 8.5pt;
+      background-color: #F6F7F9;
+      border: 1pt solid #D8DEE5;
+      border-left: 3pt solid #1E8F8E;
+      padding: 10pt 12pt;
+      margin: 8pt 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10pt 0;
+      font-size: 10pt;
+    }
+    th {
+      background-color: #17283C;
+      color: #ffffff;
+      padding: 6pt 8pt;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      border: 0.5pt solid #D8DEE5;
+      padding: 5pt 8pt;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background-color: #F6F7F9; }
+    ul, ol { margin: 6pt 0 6pt 20pt; padding: 0; }
+    li { margin: 3pt 0; }
+    .meta { color: #7C8696; font-size: 10pt; margin-bottom: 4pt; }
+    .info {
+      background-color: #E3F7F6;
+      border-left: 4pt solid #1E8F8E;
+      padding: 8pt 12pt;
+      margin: 10pt 0;
+      font-size: 10pt;
+    }
+    .note {
+      background-color: #FEF6E0;
+      border-left: 4pt solid #F0A500;
+      padding: 8pt 12pt;
+      margin: 10pt 0;
+      font-size: 10pt;
+    }
+    .section-divider { border: none; border-top: 1pt solid #D8DEE5; margin: 20pt 0; }
+    .checklist li { list-style: none; margin-left: -16pt; }
+    .checklist li::before { content: "\2610  "; }
+    .sha { color: #7C8696; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 8.5pt; }
+  </style>
+</head>
+<body>
+
+  <h1>Release 2.1.2</h1>
+  <p class="meta">@aastrika_npmjs/comptency (competency-ui library) &middot; 2026-08-28</p>
+
+  <table>
+    <tr><th style="width:34%">&nbsp;</th><th>&nbsp;</th></tr>
+    <tr><td><strong>Package</strong></td><td><code>@aastrika_npmjs/comptency</code> (npm)</td></tr>
+    <tr><td><strong>Version published</strong></td><td><code>2.1.2</code></td></tr>
+    <tr><td><strong>Baseline (previous)</strong></td><td><code>2.1.1</code></td></tr>
+    <tr><td><strong>Consumed by</strong></td><td>eagle-fusion (<code>^2.1.2</code>)</td></tr>
+    <tr><td><strong>Commits</strong></td><td><span class="sha">b9c2a61</span> (fix) + version bump</td></tr>
+    <tr><td><strong>Author</strong></td><td>vpPavithra</td></tr>
+  </table>
+
+  <h2>Summary</h2>
+  <div class="info">
+    Patch release fixing the <strong>Required</strong> tab (self-assessment) on top of
+    2.1.1. Users on that tab could see no data at all — or, once loading was fixed, data
+    that loaded but never rendered until an unrelated screen interaction happened. Both
+    were silent failures in the self-assessment data pipeline with no error surfaced.
+    This release makes the pipeline resilient to bad/partial API responses, removes a
+    runtime dependency on lodash methods that weren't reliably available in the
+    consuming app's bundle, and fixes how the component notifies Angular's (zoneless)
+    change detector that new data has arrived.
+  </div>
+
+  <hr class="section-divider">
+
+  <h2>🐛 Fixes</h2>
+  <ul>
+    <li><strong>self-assessment data pipeline silently failing</strong> —
+      <code>getUserdetailsFromRegistry</code> threw when the registry response had no
+      <code>result</code> key, which aborted the whole self-assessment fetch chain
+      <em>before</em> course data was ever requested, with no error surfaced —
+      course-fetching never ran and the tab quietly showed no data. Guarded with
+      optional chaining, and added a <code>catchError</code> around the user-details
+      step so a failed/empty registry lookup no longer blocks course fetching. Pipeline
+      errors are now logged to the console instead of failing silently.
+      <span class="sha">b9c2a61</span></li>
+    <li><strong><code>_.flatMap</code> / <code>_.uniqBy</code> not a function</strong> —
+      these lodash 4.0+ methods weren't resolving on the consuming app's runtime bundle
+      (older 3.x-compatible methods like <code>find</code>/<code>map</code>/<code>forEach</code>
+      worked; 4.0-era additions didn't), throwing and killing the same pipeline. Replaced
+      with native <code>Array.prototype.flatMap</code> and a <code>Map</code>-based dedup
+      with identical semantics — no lodash dependency for either call.
+      <span class="sha">b9c2a61</span></li>
+    <li><strong>data loaded but stayed invisible until an unrelated UI event</strong> —
+      the self-assessment component runs on zoneless change detection, so mutating
+      fields inside a raw RxJS <code>subscribe()</code> callback wasn't itself
+      recognized as a change; the view stayed stale until some unrelated Angular-bound
+      DOM event (e.g. a mouse move elsewhere on the page) happened to trigger a check. A
+      prior workaround (<code>cdr.detectChanges()</code>) forced an immediate
+      synchronous re-check that collided with Angular's dev-mode double-check, throwing
+      <code>NG0100 ExpressionChangedAfterItHasBeenCheckedError</code>. Replaced with
+      <code>cdr.markForCheck()</code> in both the success and error paths, which flags
+      the component dirty and lets the scheduler check it safely on its own next tick.
+      <span class="sha">b9c2a61</span></li>
+  </ul>
+
+  <h2>🏗️ Build / Chore</h2>
+  <ul>
+    <li><code>required-comptency-card.component.ts</code>: explicitly typed the
+      <code>language</code>, <code>isMobileApp</code>, and <code>role</code>
+      <code>@Input()</code>s (were implicit <code>any</code>).
+      <span class="sha">b9c2a61</span></li>
+    <li>version bump: <code>package.json</code> (root + <code>projects/competency-ui</code>)
+      &rarr; <code>2.1.2</code>.</li>
+  </ul>
+
+  <hr class="section-divider">
+
+  <h2>⚠️ Deploy notes &amp; risk</h2>
+  <ul>
+    <li><strong>Config / env / secret changes:</strong> none.</li>
+    <li><strong>Backend / API contract dependencies:</strong> none new. This release
+      only changes how the library handles responses it already receives from the
+      registry/FRAC/course endpoints introduced in prior releases.</li>
+    <li><strong>Breaking changes:</strong> none. The public API surface (exported
+      components, modules, <code>RequestUtil</code>) is unchanged.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Change-detection assumption.</strong> This release assumes the consuming app
+    runs zoneless change detection (<code>provideZonelessChangeDetection</code>). If a
+    consumer is still zone-based, <code>markForCheck()</code> remains correct and
+    harmless there too — it's a superset of what zone-based apps already get
+    automatically.
+  </div>
+
+  <hr class="section-divider">
+
+  <h2>✅ Pre-publish checklist</h2>
+  <ul class="checklist">
+    <li>Version bumped in <code>projects/competency-ui/package.json</code> (the library
+      manifest ng-packagr publishes)</li>
+    <li>Build clean (<code>npm run build-lib</code>) &rarr; <code>dist/competency-ui</code>
+      shows <code>2.1.2</code></li>
+    <li>Bundle audit: no <code>_.flatMap</code> / <code>_.uniqBy</code> calls remain in
+      the self-assessment component; native replacements present</li>
+    <li>Manual check: Required tab loads and renders self-assessment data immediately on
+      first paint, with no <code>NG0100</code> in the console, without needing any extra
+      UI interaction</li>
+    <li>Consumer (eagle-fusion) <code>package.json</code> + lockfile updated to
+      <code>^2.1.2</code></li>
+  </ul>
+
+  <h2>Publish &amp; rollback</h2>
+  <p><strong>Publish</strong> — npm package (no Jenkins). Bump
+  <code>projects/competency-ui/package.json</code>, run <code>npm run build-lib</code>,
+  then:</p>
+  <pre>cd dist/competency-ui
+npm publish --access public        # @aastrika_npmjs publish rights required (+ --otp if 2FA)</pre>
+  <p>Then bump the consumer (eagle-fusion <code>package.json</code> &rarr;
+  <code>^2.1.2</code>, <code>yarn install</code>) and redeploy.</p>
+  <p><strong>Rollback</strong> — consumers pin the previous version (<code>2.1.1</code>),
+  reinstall, redeploy. Published npm versions are immutable and are not unpublished. Note:
+  rolling back to <code>2.1.1</code> reintroduces the Required-tab
+  data-loading/rendering bugs this release fixes.</p>
+
+  <hr class="section-divider">
+  <p class="meta">Adapted from the eagle-fusion / CBP release-notes template for an
+  npm-published library. Styled in the Aastrika brand document theme (navy <code>#17283C</code>
+  / teal <code>#1E8F8E</code> / gold <code>#F0A500</code>).</p>
+
+</body>
+</html>
